@@ -31,8 +31,8 @@ var CHECKSFILE_DEFAULT = "checks.json";
 var assertFileExists = function(infile) {
     var instr = infile.toString();
     if(!fs.existsSync(instr)) {
-        console.log("%s does not exist. Exiting.", instr);
-        process.exit(1); 
+	console.log("%s does not exist. Exiting.", instr);
+	process.exit(1);
     }
     return instr;
 };
@@ -47,8 +47,8 @@ var checkHtmlBuffer = function(htmlbuffer, checksfile) {
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
-        var present = $(checks[ii]).length > 0;
-        out[checks[ii]] = present;
+	var present = $(checks[ii]).length > 0;
+	out[checks[ii]] = present;
     }
     return out;
 };
@@ -67,35 +67,35 @@ var bufferCheck2Console = function(htmlbuffer, checksfile) {
 
 var urlCheck2Console = function(url, checksfile) {
     var response2console = function(result, response) {
-        if (result instanceof Error) {
-            console.error('Error: ' + util.format(response.message));
-        } else {
+	if (result instanceof Error) {
+	    console.error('Error: ' + util.format(response.message));
+	} else {
 	    bufferCheck2Console(result, checksfile);
-        }
+	}
     };
     rest.get(url).on('complete', response2console);
-}
+};
 
 var fileCheck2Console = function(filename, checksfile) {
-    htmlbuffer = fs.readFileSync(filename);
+    var htmlbuffer = fs.readFileSync(filename);
     bufferCheck2Console(htmlbuffer, checksfile);
 };
 
 if(require.main == module) {
     program
-        .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-        .option('-u, --url <url>', 'Url to html file')
-        .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
-        .parse(process.argv);
+	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
+	.option('-u, --url <url>', 'Url to html file')
+	.option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
+	.parse(process.argv);
     if ((program.file || program.url) && program.checks) {
-	if (filename) {
-	    fileCheck2Console(filename, program.checks);
-        else {
-	    urlCheck2Console(url, program.checks);
-        }
+	if (program.file) {
+	    fileCheck2Console(program.file, program.checks);
+	} else {
+	    urlCheck2Console(program.url, program.checks);
+	}
     } else {
 	console.log("One or more arguments are lacking.");
-        process.exit(1);
+	process.exit(1);
     }
 } else {
     exports.checkHtmlFile = checkHtmlFile;
